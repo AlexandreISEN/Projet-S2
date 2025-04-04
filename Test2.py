@@ -191,9 +191,9 @@ while running:
                     elif false_button.collidepoint(event.pos):
                         if not images[0]["real"]:
                             score += 1
-                            explanation_text = f"Success! {images[0]['explanation']}"
+                            explanation_text = f"Bien joué! {images[0]['explanation']}"
                         else:
-                            explanation_text = f"Wrong! {images[0]['explanation']}"
+                            explanation_text = f"Dommage! {images[0]['explanation']}"
                         show_explanation = True
                 elif next_button and next_button.collidepoint(event.pos):  # Handle "Next" button
                     images.pop(0)  # Remove the displayed image
