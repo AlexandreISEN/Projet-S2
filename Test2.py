@@ -56,10 +56,7 @@ ai_images = [
 images = real_images + ai_images
 random.shuffle(images)
 
-# Game state variables
-current_image_index = 0
-score = 0
-max_possible_score = len(images)
+
 
 
 global roop_execution
@@ -142,7 +139,7 @@ def take_picture():
 def preprocess_image(image_path):
 
     selected_photo = r"C:\Users\cc2qk\Documents\ISEN4\PROJET_Deepface\selection_photo\man_white.jpg"
-    selected_video = r"C:\Users\cc2qk\Documents\ISEN4\PROJET_Deepface\selection_video\man_white.mp4"
+    selected_video = r"C:\Users\cc2qk\Documents\ISEN4\PROJET_Deepface\selection_video\man_white_court.mp4"
 
     return selected_photo, selected_video
 
@@ -177,6 +174,7 @@ def background(select_photo, select_video):
     roop_execution = True
     roop("capture.png", select_photo, "output_photo.png")
     #roop("capture.png", select_video, "output_video.mp4") # Uncomment if needed
+    time.sleep(30)  # Attendre 30 secondes pour s'assurer que Roop a fini
     print("Roop a été exécuté en arrière-plan.")
     roop_execution = False
 
@@ -198,18 +196,22 @@ def display_game():
     global current_image_index, score, show_explanation, explanation_text, game_state, roop_execution
 
     running = True  # Boucle interne pour gérer l'état "game"
+    # Game state variables
+    current_image_index = 0
+    score = 0
+    max_possible_score = 0
 
     while running:
         screen.fill(WHITE)
 
         if roop_execution == False:
-            ai_images.append({
+            images.clear()
+            images.append({
                 "url": "output_photo.png",
                 "real": False,
-                "explanation": "Cette image a été capturée et ajoutée automatiquement."
+                "explanation": "Cette image est une Deepfake de vous ! Réalisée en 13sec, imaginée alors ce qu'il est possible de faire..."
             })
-            images.append(ai_images[-1])  # Ajouter également à la liste globale des images
-            roop_execution = None  # Éviter de l'ajouter plusieurs fois
+            roop_execution = None
 
             if current_image_index >= len(images):
                 current_image_index = len(images) - 1
@@ -308,21 +310,22 @@ def display_game():
                                 show_explanation = True
                         elif next_button and next_button.collidepoint(event.pos):
                             current_image_index += 1
+                            max_possible_score += 1
                             show_explanation = False
                             print("Next image...", current_image_index, len(images))
                             if current_image_index >= len(images):
                                 print("Fin du jeu !")
-                                running = False  # Sortir de la boucle interne
 
-        else:
-            # Afficher l'écran de fin de jeu
-            game_over_text = font.render(f"Game Over ! Your score: {score}/{max_possible_score}", True, BLACK)
-            screen.blit(game_over_text, (SCREEN_WIDTH // 2 - game_over_text.get_width() // 2,
-                                         SCREEN_HEIGHT // 2 - game_over_text.get_height() // 2))
-            pygame.display.flip()
-            pygame.time.wait(3000)
-            running = False  # Sortir de la boucle interne
-            game_state = "game_over"
+                                # Afficher l'écran de fin de jeu
+                                screen.fill(WHITE)
+                                game_over_text = font.render(f"Fin du jeu ! Votre score: {score}/{max_possible_score}", True, BLACK)
+                                screen.blit(game_over_text, (SCREEN_WIDTH // 2 - game_over_text.get_width() // 2,
+                                                            SCREEN_HEIGHT // 2 - game_over_text.get_height() // 2))
+                                pygame.display.flip()
+                                pygame.time.wait(3000)
+
+                                running = False  # Sortir de la boucle interne
+                                game_state = "game_over"
 
         pygame.display.flip()
 
@@ -351,7 +354,7 @@ if __name__ == "__main__":
             display_game()  # Appeler une seule fois, la boucle interne gère tout
 
         elif game_state == "game_over":
-            print(f"Game Over ! Your score: {score}/{max_possible_score}")
+            print(f"Game Over !")
             running = False
 
     pygame.quit()
