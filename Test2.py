@@ -58,28 +58,25 @@ def start_screen():
     start_running = True
 
     while start_running:
-        screen.fill((240, 240, 240))  # fond clair
-
-        # Titre principal
-        title_font = pygame.font.SysFont(None, 100)
-        title_text = title_font.render("Real or Fake", True, (0, 0, 0))
-        screen.blit(title_text, ((SCREEN_WIDTH - title_text.get_width()) // 2, 150))
+        background_image = pygame.image.load("background.jpg")  # Charger l'image de fond
+        background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))  # Redimensionner l'image
+        screen.blit(background_image, (0, 0))  # Afficher l'image de fond
 
         # Dessin du bouton Let's Go
         button_width = 300
         button_height = 80
         button_x = (SCREEN_WIDTH - button_width) // 2
         button_y = SCREEN_HEIGHT // 2
-        go_button = pygame.draw.rect(screen, (50, 200, 100), (button_x, button_y, button_width, button_height), border_radius=15)
+        go_button = pygame.draw.rect(screen, (199, 255, 250), (button_x, button_y, button_width, button_height), border_radius=15)
 
         go_font = pygame.font.SysFont(None, 50)
-        go_text = go_font.render("Let's Go*", True, (255, 255, 255))
+        go_text = go_font.render("Let's Go*", True, (30,34,56))
         screen.blit(go_text, (button_x + (button_width - go_text.get_width()) // 2,
                               button_y + (button_height - go_text.get_height()) // 2))
 
         # Texte avec astérisque en bas
         footnote_font = pygame.font.SysFont(None, 24)
-        footnote_text = footnote_font.render("*Demander conditions au personnel", True, (100, 100, 100))
+        footnote_text = footnote_font.render("*Voir conditions auprès de personnel présent", True, (199, 255, 250))
         screen.blit(footnote_text, ((SCREEN_WIDTH - footnote_text.get_width()) // 2, SCREEN_HEIGHT - 40))
 
         pygame.display.flip()
@@ -116,7 +113,9 @@ def take_picture():
     running = True
     while running:
         pygame.display.flip()
-        screen.fill(WHITE)
+        background_image = pygame.image.load("background.jpg")  # Charger l'image de fond
+        background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))  # Redimensionner l'image
+        screen.blit(background_image, (0, 0))  # Afficher l'image de fond
 
         # Capture image webcam
         ret, frame = cap.read()
@@ -242,7 +241,9 @@ def display_game():
     max_possible_score = 0
 
     while running:
-        screen.fill(WHITE)
+        background_image = pygame.image.load("background2.jpg")  # Charger l'image de fond
+        background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))  # Redimensionner l'image
+        screen.blit(background_image, (0, 0))  # Afficher l'image de fond
 
         if roop_execution == False:
             images.clear()
@@ -296,8 +297,8 @@ def display_game():
             false_button = pygame.draw.rect(screen, RED, (false_button_x, button_y, button_width, button_height))
 
             # Texte des boutons
-            true_text = font.render("True", True, WHITE)
-            false_text = font.render("False", True, WHITE)
+            true_text = font.render("True", True, (30,34,56))
+            false_text = font.render("False", True, (30,34,56))
             screen.blit(true_text, (true_button_x + (button_width - true_text.get_width()) // 2,
                                     button_y + (button_height - true_text.get_height()) // 2))
             screen.blit(false_text, (false_button_x + (button_width - false_text.get_width()) // 2,
@@ -305,7 +306,7 @@ def display_game():
 
             # Afficher le texte d'explication si nécessaire
             if show_explanation:
-                explanation_surface = font.render(explanation_text, True, BLACK)
+                explanation_surface = font.render(explanation_text, True, WHITE)
                 explanation_x = (SCREEN_WIDTH - explanation_surface.get_width()) // 2
                 explanation_y = button_y + button_height + 20  # En dessous des boutons
                 screen.blit(explanation_surface, (explanation_x, explanation_y))
@@ -358,7 +359,7 @@ def display_game():
 
                                 # Afficher l'écran de fin de jeu
                                 screen.fill(WHITE)
-                                game_over_text = font.render(f"Fin du jeu ! Votre score: {score}/{max_possible_score}", True, BLACK)
+                                game_over_text = font.render(f"Fin du jeu ! Votre score: {score}/{max_possible_score}", True, WHITE)
                                 screen.blit(game_over_text, (SCREEN_WIDTH // 2 - game_over_text.get_width() // 2,
                                                             SCREEN_HEIGHT // 2 - game_over_text.get_height() // 2))
                                 pygame.display.flip()
