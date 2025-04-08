@@ -9,26 +9,20 @@ import numpy as np
 import time
 
 
-
 # Initialize pygame
 pygame.init()
-
 # Screen dimensions
 SCREEN_WIDTH, SCREEN_HEIGHT = pygame.display.Info().current_w, pygame.display.Info().current_h
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
-
 #Name of the window
 pygame.display.set_caption("Real or Fake Game")
-
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
-
 # Fonts
 font = pygame.font.Font(None, 36)
-
 # List of image URLs from the "Real" and "AI" folders
 real_images = [
     {"url": "Real/anne_hathaway.jpg", "real": True, "explanation": "Le visage de Anne Hathaway est très détaillé, la peau n'est pas 'lisse' comme les images créées par IA."},
@@ -37,7 +31,6 @@ real_images = [
     {"url": "Real/Robin Williams.jpg", "real": True, "explanation": "Sur cette photo, l'acteur Robin Williams a une peau détaillée, rien n'est hors de l'ordinaire sur l'image."},
     {"url": "Real/Willem_Dafoe.jpg", "real": True, "explanation": "Sur cette photo de Willem Dafoe, il y a beaucoup d'éléments d'arrière plan très détaillés."}
 ]
-
 ai_images = [
     {"url": "AI/Beach_Selfie_AI.jpeg", "real": False, "explanation": "On peut voir le téléphone qui est censé prendre la photo SUR la photo."},
     {"url": "AI/Cola_Bottle_AI.jpg", "real": False, "explanation": "Le texte ici ne veut rien dire."},
@@ -51,19 +44,61 @@ ai_images = [
     {"url": "AI/Trump_Arrest_AI.jpg", "real": False, "explanation": "Les visages des policiers sont flous, il y a des problèmes au niveau des jambes."},
     {"url": "AI/Will_Smith_Slap_AI.jpg", "real": False, "explanation": "Ils n'auraient pas pu prendre la photo en se faisant frapper, et l'IA a raté les doigts."}
 ]
-
 # Combine and shuffle images
 images = real_images + ai_images
 random.shuffle(images)
-
-
-
-
+# Initialize global roop variables
 global roop_execution
 roop_execution = None
 
-# 1.Take a picture
+
+
+# 1.1 Start screen
+def start_screen():
+    start_running = True
+
+    while start_running:
+        screen.fill((240, 240, 240))  # fond clair
+
+        # Titre principal
+        title_font = pygame.font.SysFont(None, 100)
+        title_text = title_font.render("Real or Fake", True, (0, 0, 0))
+        screen.blit(title_text, ((SCREEN_WIDTH - title_text.get_width()) // 2, 150))
+
+        # Dessin du bouton Let's Go
+        button_width = 300
+        button_height = 80
+        button_x = (SCREEN_WIDTH - button_width) // 2
+        button_y = SCREEN_HEIGHT // 2
+        go_button = pygame.draw.rect(screen, (50, 200, 100), (button_x, button_y, button_width, button_height), border_radius=15)
+
+        go_font = pygame.font.SysFont(None, 50)
+        go_text = go_font.render("Let's Go*", True, (255, 255, 255))
+        screen.blit(go_text, (button_x + (button_width - go_text.get_width()) // 2,
+                              button_y + (button_height - go_text.get_height()) // 2))
+
+        # Texte avec astérisque en bas
+        footnote_font = pygame.font.SysFont(None, 24)
+        footnote_text = footnote_font.render("*Demander conditions au personnel", True, (100, 100, 100))
+        screen.blit(footnote_text, ((SCREEN_WIDTH - footnote_text.get_width()) // 2, SCREEN_HEIGHT - 40))
+
+        pygame.display.flip()
+
+        # Gestion des événements
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # clic gauche
+                    if go_button.collidepoint(event.pos):
+                        start_running = False  # Sort de la boucle et lance le jeu
+
+# 1.2 Take a picture
 def take_picture():
+
+    start_screen()
+
     # Display camera
     CAMERA_WIDTH, CAMERA_HEIGHT = 640, 360
     # Open the camera
@@ -135,6 +170,7 @@ def take_picture():
                     running = False
 
 
+
 # 2. Preprocess the image   (A COMPLETER : CODE DE DETECTION DU VISAGE)
 def preprocess_image(image_path):
 
@@ -142,6 +178,8 @@ def preprocess_image(image_path):
     selected_video = r"C:\Users\cc2qk\Documents\ISEN4\PROJET_Deepface\selection_video\man_white_court.mp4"
 
     return selected_photo, selected_video
+
+
 
 # 3. Function to create a deepfake using Roop
 def roop(source_image: str, target_video: str, output_video: str, 
@@ -178,6 +216,8 @@ def background(select_photo, select_video):
     print("Roop a été exécuté en arrière-plan.")
     roop_execution = False
 
+
+
 # 4.1 Load an image using pygame
 def load_image(image_path):
     try:
@@ -190,7 +230,7 @@ def load_image(image_path):
     except Exception as e:
         print(f"Error loading image {image_path}: {e}")
         return None
-    
+
 # 4.2 Display the GAME
 def display_game():
     global current_image_index, score, show_explanation, explanation_text, game_state, roop_execution
