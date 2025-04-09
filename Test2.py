@@ -175,7 +175,7 @@ def preprocess_image(image_path):
 
     #(A COMPLETER : CODE DE DETECTION DU VISAGE)
 
-    selected_photo = r"C:\Users\cc2qk\Documents\ISEN4\PROJET_Deepface\selection_photo\man_white.jpg"
+    selected_photo = r"C:\Users\cc2qk\Documents\ISEN4\PROJET_Deepface\selection_photo\man_white2.jpg"
     selected_video = r"C:\Users\cc2qk\Documents\ISEN4\PROJET_Deepface\selection_video\man_white_court.mp4"
 
     return selected_photo, selected_video
@@ -251,7 +251,7 @@ def display_game():
             images.append({
                 "url": "output_photo.png",
                 "real": False,
-                "explanation": "Cette image est une Deepfake de vous ! Réalisée en 13sec, imaginée alors ce qu'il est possible de faire..."
+                "explanation": "Cette image est une Deepfake de vous ! Réalisée en 13sec, imaginée alors ce qu'il est possible de faire avec plus de temps..."
             })
             roop_execution = None
 
@@ -339,16 +339,16 @@ def display_game():
                             if true_button.collidepoint(event.pos):
                                 if images[current_image_index]["real"]:
                                     score += 1
-                                    explanation_text = f"Bien joué! {images[current_image_index]['explanation']}"
+                                    explanation_text = f"Bien joué ! {images[current_image_index]['explanation']}"
                                 else:
-                                    explanation_text = f"Dommage! {images[current_image_index]['explanation']}"
+                                    explanation_text = f"Dommage ! {images[current_image_index]['explanation']}"
                                 show_explanation = True
                             elif false_button.collidepoint(event.pos):
                                 if not images[current_image_index]["real"]:
                                     score += 1
-                                    explanation_text = f"Bien joué! {images[current_image_index]['explanation']}"
+                                    explanation_text = f"Bien joué ! {images[current_image_index]['explanation']}"
                                 else:
-                                    explanation_text = f"Dommage! {images[current_image_index]['explanation']}"
+                                    explanation_text = f"Dommage ! {images[current_image_index]['explanation']}"
                                 show_explanation = True
                         elif next_button and next_button.collidepoint(event.pos):
                             current_image_index += 1
@@ -408,7 +408,7 @@ def game_over():
 
 
         # Ajouter un message sous la vidéo avec gestion des sauts de ligne
-        message_text = "Merci d'avoir participé à notre expérience immersive !\n\nSi vous avez des questions, n'hésitez pas à nous en faire part."
+        message_text = "Merci d'avoir participé à notre expérience immersive !\nSi vous avez des questions, n'hésitez pas à nous en faire part."
         lines = message_text.split("\n")
         line_height = font.get_height() 
 
@@ -436,14 +436,14 @@ def game_over():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                game_state = "take_picture"
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if finish_button.collidepoint(event.pos):
                     running = False
+                    game_state = "take_picture"
 
     game_state = "take_picture"
     cap.release()
-    pygame.quit()
-    exit()
 
 
 
@@ -469,5 +469,6 @@ if __name__ == "__main__":
 
         elif game_state == "game_over":
             game_over()
+            game_state = "take_picture"
 
     pygame.quit()
