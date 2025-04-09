@@ -173,6 +173,8 @@ def take_picture():
 # 2. Preprocess the image   (A COMPLETER : CODE DE DETECTION DU VISAGE)
 def preprocess_image(image_path):
 
+    #(A COMPLETER : CODE DE DETECTION DU VISAGE)
+
     selected_photo = r"C:\Users\cc2qk\Documents\ISEN4\PROJET_Deepface\selection_photo\man_white.jpg"
     selected_video = r"C:\Users\cc2qk\Documents\ISEN4\PROJET_Deepface\selection_video\man_white_court.mp4"
 
@@ -210,7 +212,7 @@ def background(select_photo, select_video):
     global roop_execution
     roop_execution = True
     roop("capture.png", select_photo, "output_photo.png")
-    roop("capture.png", select_video, "output_video.mp4") # Uncomment if needed
+    roop("capture.png", select_video, "output_video.mp4")
     print("Roop a été exécuté en arrière-plan.")
     roop_execution = False
 
@@ -240,9 +242,9 @@ def display_game():
     max_possible_score = 0
 
     while running:
-        background_image = pygame.image.load("background2.jpg")  # Charger l'image de fond
-        background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))  # Redimensionner l'image
-        screen.blit(background_image, (0, 0))  # Afficher l'image de fond
+        background_image = pygame.image.load("background2.jpg") 
+        background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT)) 
+        screen.blit(background_image, (0, 0))
 
         if roop_execution == False:
             images.clear()
@@ -264,7 +266,7 @@ def display_game():
             image_rect_width = 1200  # Largeur du rectangle
             image_rect_height = 800  # Hauteur du rectangle
             image_rect_x = (SCREEN_WIDTH - image_rect_width) // 2
-            image_rect_y = (SCREEN_HEIGHT - image_rect_height) // 2 - 50  # Légèrement au-dessus du centre
+            image_rect_y = (SCREEN_HEIGHT - image_rect_height) // 2 - 50
 
             # Charger et redimensionner l'image
             image = load_image(image_path)
@@ -284,12 +286,12 @@ def display_game():
             # Dimensions des boutons
             button_width = 150
             button_height = 50
-            button_spacing = 20  # Espace entre les boutons
+            button_spacing = 20
 
             # Calculer les positions des boutons
             true_button_x = (SCREEN_WIDTH // 2) - button_width - (button_spacing // 2)
             false_button_x = (SCREEN_WIDTH // 2) + (button_spacing // 2)
-            button_y = image_rect_y + image_rect_height + 20  # En dessous de l'image
+            button_y = image_rect_y + image_rect_height + 20
 
             # Dessiner les boutons
             true_button = pygame.draw.rect(screen, GREEN, (true_button_x, button_y, button_width, button_height))
@@ -307,13 +309,13 @@ def display_game():
             if show_explanation:
                 explanation_surface = font.render(explanation_text, True, WHITE)
                 explanation_x = (SCREEN_WIDTH - explanation_surface.get_width()) // 2
-                explanation_y = button_y + button_height + 20  # En dessous des boutons
+                explanation_y = button_y + button_height + 20
                 screen.blit(explanation_surface, (explanation_x, explanation_y))
 
                 # Dessiner le bouton "Next"
                 next_button_width = 100
                 next_button_height = 40
-                next_button_x = SCREEN_WIDTH - next_button_width - 20  # Coin inférieur droit
+                next_button_x = SCREEN_WIDTH - next_button_width - 20
                 next_button_y = SCREEN_HEIGHT - next_button_height - 20
                 next_button = pygame.draw.rect(screen, BLACK, (next_button_x, next_button_y, next_button_width, next_button_height))
 
@@ -356,9 +358,9 @@ def display_game():
                             if current_image_index >= len(images):
                                 print("Fin du jeu !")
 
-                                background_image = pygame.image.load("background2.jpg")  # Charger l'image de fond
-                                background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))  # Redimensionner l'image
-                                screen.blit(background_image, (0, 0))  # Afficher l'image de fond
+                                background_image = pygame.image.load("background2.jpg")
+                                background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+                                screen.blit(background_image, (0, 0))
 
                                 game_over_text = font.render(f"Fin du jeu ! Votre score: {score}/{max_possible_score}", True, WHITE)
                                 screen.blit(game_over_text, (SCREEN_WIDTH // 2 - game_over_text.get_width() // 2,
@@ -366,20 +368,21 @@ def display_game():
                                 pygame.display.flip()
                                 pygame.time.wait(3000)
 
-                                running = False  # Sortir de la boucle interne
+                                running = False
                                 game_state = "game_over"
 
         pygame.display.flip()
 
 # 5. Game Over function
 def game_over():
+    global game_state
     running = True
     video_path = "output_video.mp4"
     cap = cv2.VideoCapture(video_path)
 
     # Dimensions fixes pour la vidéo
-    video_display_width = 800  # Largeur de la vidéo affichée
-    video_display_height = 450  # Hauteur de la vidéo affichée
+    video_display_width = 800
+    video_display_height = 450
 
     while running:
         # Charger et afficher l'image de fond
@@ -392,23 +395,22 @@ def game_over():
         if ret:
             # Convertir la frame pour Pygame
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            frame = cv2.resize(frame, (video_display_width, video_display_height))  # Redimensionner la vidéo
-            frame = np.rot90(frame)  # Rotation pour l'orientation correcte
+            frame = cv2.resize(frame, (video_display_width, video_display_height))
+            frame = np.rot90(frame)
             frame = pygame.surfarray.make_surface(frame)
 
             # Calculer les coordonnées pour centrer la vidéo
             video_x = (SCREEN_WIDTH - video_display_width) // 2
-            video_y = (SCREEN_HEIGHT - video_display_height) // 2 - 50  # Légèrement au-dessus du centre
+            video_y = (SCREEN_HEIGHT - video_display_height) // 2 - 50 
             screen.blit(frame, (video_x, video_y))
         else:
             cap.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Redémarrer la vidéo si elle est terminée
 
 
-        # Ajouter un message sous la vidéo
         # Ajouter un message sous la vidéo avec gestion des sauts de ligne
         message_text = "Merci d'avoir participé à notre expérience immersive !\n\nSi vous avez des questions, n'hésitez pas à nous en faire part."
-        lines = message_text.split("\n")  # Découper le texte en lignes
-        line_height = font.get_height()  # Hauteur d'une ligne de texte
+        lines = message_text.split("\n")
+        line_height = font.get_height() 
 
         # Afficher chaque ligne de texte
         for i, line in enumerate(lines):
@@ -438,6 +440,7 @@ def game_over():
                 if finish_button.collidepoint(event.pos):
                     running = False
 
+    game_state = "take_picture"
     cap.release()
     pygame.quit()
     exit()
@@ -453,11 +456,8 @@ if __name__ == "__main__":
 
     while running:
         if game_state == "take_picture":
-            game_over()
-            print("Prendre une photo...")
             take_picture()
             select_photo, select_video = preprocess_image("capture.png")
-            print("Prétraitement de l'image terminé.")
             
             roop_thread = threading.Thread(target=background, args=(select_photo, select_video))
             roop_thread.start()
@@ -465,11 +465,9 @@ if __name__ == "__main__":
             game_state = "game"
 
         elif game_state == "game":
-            display_game()  # Appeler une seule fois, la boucle interne gère tout
+            display_game()
 
         elif game_state == "game_over":
-            print(f"Game Over !")
             game_over()
-            game_state = "take_picture"
 
     pygame.quit()
