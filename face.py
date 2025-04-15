@@ -132,8 +132,6 @@ def main(image_path):
 
 
 def deepface (img_path):
-
-
     try:
         result = DeepFace.analyze(img_path, actions=['gender','race'])
     except Exception as e:

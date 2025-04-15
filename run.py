@@ -32,7 +32,7 @@ roop_execution = None
 
 
 # 1.1 Start screen
-def start_screen():
+def start_screen(face_detected):
     start_running = True
 
     while start_running:
@@ -48,7 +48,7 @@ def start_screen():
         go_button = pygame.draw.rect(screen, (199, 255, 250), (button_x, button_y, button_width, button_height), border_radius=15)
 
         go_font = pygame.font.SysFont(None, 50)
-        go_text = go_font.render("Let's Go*", True, (30,34,56))
+        go_text = go_font.render("Let's Go*", True, (30, 34, 56))
         screen.blit(go_text, (button_x + (button_width - go_text.get_width()) // 2,
                               button_y + (button_height - go_text.get_height()) // 2))
 
@@ -56,6 +56,12 @@ def start_screen():
         footnote_font = pygame.font.SysFont(None, 24)
         footnote_text = footnote_font.render("*Voir conditions auprès de personnel présent", True, (199, 255, 250))
         screen.blit(footnote_text, ((SCREEN_WIDTH - footnote_text.get_width()) // 2, SCREEN_HEIGHT - 40))
+
+        # Afficher un message d'erreur si aucun visage détecté
+        if not face_detected:
+            error_font = pygame.font.SysFont(None, 36)
+            error_text = error_font.render("Aucun visage trouvé, veuillez vous rapprocher et réessayer.", True, (255, 100, 100))
+            screen.blit(error_text, ((SCREEN_WIDTH - error_text.get_width()) // 2, button_y - 60))
 
         pygame.display.flip()
 
@@ -70,9 +76,9 @@ def start_screen():
                         start_running = False  # Sort de la boucle et lance le jeu
 
 # 1.2 Take a picture
-def take_picture():
+def take_picture(face_detected):
 
-    start_screen()
+    start_screen(face_detected)
 
     # Display camera
     CAMERA_WIDTH, CAMERA_HEIGHT = 640, 360
@@ -214,8 +220,43 @@ def load_image(image_path):
         print(f"Error loading image {image_path}: {e}")
         return None
 
-# 4.2 Display the GAME
+# 4.2 Display the tutorial screen
+def tutorial():
+    # Load and display the background image
+    background_image = pygame.image.load("explanation.jpg")
+    background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    screen.blit(background_image, (0, 0))
+
+    # Define the button dimensions and position
+    button_width, button_height = 300, 80
+    button_x = (SCREEN_WIDTH - button_width) // 2
+    button_y = SCREEN_HEIGHT - 150
+    button_rect = pygame.Rect(button_x, button_y, button_width, button_height)
+
+    running = True
+    while running:
+        # Draw the button
+        pygame.draw.rect(screen, (199, 255, 250), button_rect, border_radius=15)
+        button_font = pygame.font.SysFont(None, 50)
+        button_text = button_font.render("C'est parti !", True, BLACK)
+        screen.blit(button_text, (button_x + (button_width - button_text.get_width()) // 2,
+                                  button_y + (button_height - button_text.get_height()) // 2))
+
+        pygame.display.flip()
+
+        # Handle events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1 and button_rect.collidepoint(event.pos):
+                    running = False  # Exit the loop when the button is clicked
+
+
+# 4.3 Display the GAME
 def display_game():
+    start_time = pygame.time.get_ticks()
     real_images = [
     {"url": "Real/anne_hathaway.jpg", "real": True, "explanation": "Le visage de Anne Hathaway est très détaillé, la peau n'est pas 'lisse' comme les images créées par IA."},
     {"url": "Real/Bryan_Cranston.jpg", "real": True, "explanation": "C'est une vraie photo prise pour la série 'Breaking Bad'."},
@@ -256,8 +297,9 @@ def display_game():
         background_image = pygame.image.load("background2.jpg") 
         background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT)) 
         screen.blit(background_image, (0, 0))
+        elapsed_time = pygame.time.get_ticks() - start_time
 
-        if roop_execution == False:
+        if roop_execution == False and elapsed_time > 60000:  # 60 000 ms = 1 minute
             new_image = [images[current_image_index],images[current_image_index+1]]
             current_image_index = 0
             new_image.append( {
@@ -407,7 +449,7 @@ def game_over():
         background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
         screen.blit(background_image, (0, 0))
 
-        # Lire une frame de la vidéo
+        # Lire la vidéo
         ret, frame = cap.read()
         if ret:
             # Convertir la frame pour Pygame
@@ -420,6 +462,12 @@ def game_over():
             video_x = (SCREEN_WIDTH - video_display_width) // 2
             video_y = (SCREEN_HEIGHT - video_display_height) // 2 - 50 
             screen.blit(frame, (video_x, video_y))
+
+            # Ajuster la vitesse de la vidéo pour qu'elle soit normale
+            fps = cap.get(cv2.CAP_PROP_FPS)
+            if fps > 0:
+                clock = pygame.time.Clock()
+                clock.tick(fps)
         else:
             cap.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Redémarrer la vidéo si elle est terminée
 
@@ -469,22 +517,26 @@ if __name__ == "__main__":
     show_explanation = False
     roop_execution = False
     explanation_text = ""
+    face_detected = True
     game_state = "take_picture"
 
     while running:
         if game_state == "take_picture":
-            take_picture()
+            take_picture(face_detected)
             select_photo, select_video = preprocess_image("capture.png")
             
             if select_photo is None:
+                face_detected = False
                 continue
 
+            face_detected = True
             roop_thread = threading.Thread(target=background, args=(select_photo, select_video))
             roop_thread.start()
 
             game_state = "game"
 
         elif game_state == "game":
+            tutorial()
             display_game()
 
         elif game_state == "game_over":
