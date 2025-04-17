@@ -29,6 +29,21 @@ font = pygame.font.Font(None, 36)
 global roop_execution
 roop_execution = None
 
+def wrap_text(font, text, max_width):
+    lines = []
+    for paragraph in text.split('\n'):
+        words = paragraph.split(' ')
+        current_line = ""
+        for word in words:
+            test_line = current_line + word + " "
+            if font.size(test_line)[0] <= max_width:
+                current_line = test_line
+            else:
+                lines.append(current_line.strip())
+                current_line = word + " "
+        if current_line:
+            lines.append(current_line.strip())
+    return lines
 
 
 # 1.1 Start screen
@@ -93,8 +108,9 @@ def take_picture(face_detected):
     button_color = RED
     flash_alpha = 0 
     taking_photo = False
-
+    flash_start_time = None
     running = True
+
     while running:
         pygame.display.flip()
         background_image = pygame.image.load("background.jpg")  # Charger l'image de fond
@@ -118,13 +134,19 @@ def take_picture(face_detected):
         text_rect = text.get_rect(center=button_rect.center)
         screen.blit(text, text_rect)
 
-        # Effet de flash (animation après capture)
-        if flash_alpha > 0:
-            flash_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-            flash_surface.fill(WHITE)
-            flash_surface.set_alpha(flash_alpha)
-            screen.blit(flash_surface, (0, 0))
-            flash_alpha -= 10  # Réduction progressive du flash
+        # Effet de flash (non-bloquant)
+        if flash_start_time:
+            elapsed = pygame.time.get_ticks() - flash_start_time
+            if elapsed < 300:  # Durée du flash
+                flash_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+                flash_surface.fill(WHITE)
+                flash_surface.set_alpha(flash_alpha)
+                screen.blit(flash_surface, (0, 0))
+                flash_alpha = max(0, flash_alpha - 25)
+            else:
+                flash_start_time = None  # Fin du flash
+                cap.release()
+                running = False  # Quitte la boucle principale proprement
 
         # Gestion des événements
         for event in pygame.event.get():
@@ -147,10 +169,10 @@ def take_picture(face_detected):
                         print("Photo prise et enregistrée sous 'capture.png'.")
 
                     # Déclenchement du flash
-                    flash_alpha = 255  
-                    taking_photo = False  
-                    cap.release()
-                    running = False
+                    flash_alpha = 255
+                    flash_start_time = pygame.time.get_ticks()
+                    taking_photo = False
+
 
 
 
@@ -164,9 +186,10 @@ def preprocess_image(image_path):
     if label_gender == None:
         return None, None
 
-    selected_photo = rf"C:\Users\cc2qk\Documents\ISEN4\PROJET_Deepface\photo_selection\{label_gender}_{label_race}.jpg"
-    selected_video = rf"C:\Users\cc2qk\Documents\ISEN4\PROJET_Deepface\video_selection\{label_gender}_{label_race}.mp4"
+    selected_photo = f"photo_selection\{label_gender}_{label_race}.jpg"
+    selected_video = f"video_selection\{label_gender}_{label_race}.mp4"
 
+    print(selected_photo, selected_video)
     return selected_photo, selected_video
 
 
@@ -181,7 +204,7 @@ def roop(source_image: str, target_video: str, output_video: str,
         "-o", output_video,
         "--execution-provider", execution_provider
     ]
-    
+    print(command)
     if keep_fps:
         command.append("--keep-fps")
     if skip_audio:
@@ -190,7 +213,6 @@ def roop(source_image: str, target_video: str, output_video: str,
     try:
         process = subprocess.Popen(command)
         process.wait()
-        print("Deepfake généré avec succès!")
     except subprocess.CalledProcessError as e:
         print(f"Erreur lors de l'exécution de Roop: {e}")
     except FileNotFoundError:
@@ -258,11 +280,11 @@ def tutorial():
 def display_game():
     start_time = pygame.time.get_ticks()
     real_images = [
-    {"url": "Real/anne_hathaway.jpg", "real": True, "explanation": "Le visage de Anne Hathaway est très détaillé, la peau n'est pas 'lisse' comme les images créées par IA."},
-    {"url": "Real/Bryan_Cranston.jpg", "real": True, "explanation": "C'est une vraie photo prise pour la série 'Breaking Bad'."},
-    {"url": "Real/Henry_Cavill_Jason_Momoa.jpg", "real": True, "explanation": "Sur cette image de Henry Cavill et Jason Momoa, les éléments et gens en fond ne sont pas illogiques ou déformés."},
-    {"url": "Real/Robin Williams.jpg", "real": True, "explanation": "Sur cette photo, l'acteur Robin Williams a une peau détaillée, rien n'est hors de l'ordinaire sur l'image."},
-    {"url": "Real/Willem_Dafoe.jpg", "real": True, "explanation": "Sur cette photo de Willem Dafoe, il y a beaucoup d'éléments d'arrière plan très détaillés."}
+        {"url": "Real/anne_hathaway.jpg", "real": True, "explanation": "Le visage de Anne Hathaway est très détaillé, la peau n'est pas 'lisse' comme les images créées par IA."},
+        {"url": "Real/Bryan_Cranston.jpg", "real": True, "explanation": "C'est une vraie photo prise pour la série 'Breaking Bad'."},
+        {"url": "Real/Henry_Cavill_Jason_Momoa.jpg", "real": True, "explanation": "Sur cette image de Henry Cavill et Jason Momoa, les éléments et gens en fond ne sont pas illogiques ou déformés."},
+        {"url": "Real/Robin Williams.jpg", "real": True, "explanation": "Sur cette photo, l'acteur Robin Williams a une peau détaillée, rien n'est hors de l'ordinaire sur l'image."},
+        {"url": "Real/Willem_Dafoe.jpg", "real": True, "explanation": "Sur cette photo de Willem Dafoe, il y a beaucoup d'éléments d'arrière plan très détaillés."}
     ]
     ai_images = [
         {"url": "AI/Beach_Selfie_AI.jpeg", "real": False, "explanation": "On peut voir le téléphone qui est censé prendre la photo SUR la photo."},
@@ -275,8 +297,13 @@ def display_game():
         {"url": "AI/Rainy_Fence_Plants_AI.jpeg", "real": False, "explanation": "Il y a beaucoup trop de pots de fleurs."},
         {"url": "AI/Squirrel_Picture_AI.jpg", "real": False, "explanation": "Le fond est flou et l'image a l'air trop 'parfaite'."},
         {"url": "AI/Trump_Arrest_AI.jpg", "real": False, "explanation": "Les visages des policiers sont flous, il y a des problèmes au niveau des jambes."},
-        {"url": "AI/Will_Smith_Slap_AI.jpg", "real": False, "explanation": "Ils n'auraient pas pu prendre la photo en se faisant frapper, et l'IA a raté les doigts."}
+        {"url": "AI/Will_Smith_Slap_AI.jpg", "real": False, "explanation": "Ils n'auraient pas pu prendre la photo en se faisant frapper, et l'IA a raté les doigts."},
+        {"url": "AI/Woman_Fence_AI.jpg", "real": False, "explanation": "..."},
+        {"url": "AI/Woman_nature_AI.png", "real": False, "explanation": "Les yeux ne sont pas alignés avec le regard."},
+        {"url": "AI/Woman_neon_AI.jpg", "real": False, "explanation": "..."},
+        {"url": "AI/Woman_Portrait_Plants_AI.jpg", "real": False, "explanation": "La plante en bas à droite n'est pas naturel et semble être un amas de branche vert."}
     ]
+
     # Combine and shuffle images
     images = real_images + ai_images
     random.shuffle(images)
@@ -287,6 +314,7 @@ def display_game():
     # Game state variables
     current_image_index = 0
     score = 0
+    show_buttons = True
     max_possible_score = 0
 
     # Ajuster dynamiquement la taille de la police en fonction de la hauteur de l'écran
@@ -294,6 +322,7 @@ def display_game():
     dynamic_font = pygame.font.Font(None, dynamic_font_size)
 
     while running:
+        explanation_alpha = 0
         background_image = pygame.image.load("background2.jpg") 
         background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT)) 
         screen.blit(background_image, (0, 0))
@@ -307,9 +336,7 @@ def display_game():
                 "real": False,
                 "explanation": "Cette image est une Deepfake de vous ! Réalisée en 13sec, imaginée alors ce qu'il est possible de faire avec plus de temps..."
             } )
-            print(new_image)
             images = new_image
-            print(images)
             roop_execution = None
 
             if current_image_index >= len(images):
@@ -351,36 +378,61 @@ def display_game():
             button_y = image_rect_y + image_rect_height + 20
 
             # Dessiner les boutons
-            true_button = pygame.draw.rect(screen, GREEN, (true_button_x, button_y, button_width, button_height))
-            false_button = pygame.draw.rect(screen, RED, (false_button_x, button_y, button_width, button_height))
+            if show_buttons:
+                true_button = pygame.draw.rect(screen, GREEN, (true_button_x, button_y, button_width, button_height))
+                false_button = pygame.draw.rect(screen, RED, (false_button_x, button_y, button_width, button_height))
 
-            # Texte des boutons
-            true_text = dynamic_font.render("True", True, (30, 34, 56))
-            false_text = dynamic_font.render("False", True, (30, 34, 56))
-            screen.blit(true_text, (true_button_x + (button_width - true_text.get_width()) // 2,
-                                    button_y + (button_height - true_text.get_height()) // 2))
-            screen.blit(false_text, (false_button_x + (button_width - false_text.get_width()) // 2,
-                                     button_y + (button_height - false_text.get_height()) // 2))
+                # Texte des boutons
+                true_text = dynamic_font.render("Vrai", True, (30, 34, 56))
+                false_text = dynamic_font.render("Faux", True, (30, 34, 56))
+                screen.blit(true_text, (true_button_x + (button_width - true_text.get_width()) // 2,
+                                        button_y + (button_height - true_text.get_height()) // 2))
+                screen.blit(false_text, (false_button_x + (button_width - false_text.get_width()) // 2,
+                                        button_y + (button_height - false_text.get_height()) // 2))
+            elif show_explanation :
+                if explanation_alpha < 180:
+                    explanation_alpha += 10
 
-            # Afficher le texte d'explication si nécessaire
-            if show_explanation:
-                explanation_surface = dynamic_font.render(explanation_text, True, WHITE)
-                explanation_x = (SCREEN_WIDTH - explanation_surface.get_width()) // 2
-                explanation_y = button_y + button_height + 20
-                screen.blit(explanation_surface, (explanation_x, explanation_y))
+                box_width = SCREEN_WIDTH * 0.6  # Largeur de la boîte
+                box_height = SCREEN_HEIGHT // 8  # Hauteur de la boîte
+                box_x = (SCREEN_WIDTH - box_width) // 2
+                box_y = button_y  # Garde la position Y d'origine ou modifie-la si nécessaire
 
-                # Dessiner le bouton "Next"
-                next_button_width = SCREEN_WIDTH // 10  # 10% de la largeur de l'écran
-                next_button_height = SCREEN_HEIGHT // 20  # 5% de la hauteur de l'écran
-                next_button_x = SCREEN_WIDTH - next_button_width - 20
-                next_button_y = SCREEN_HEIGHT - next_button_height - 20
-                next_button = pygame.draw.rect(screen, BLACK, (next_button_x, next_button_y, next_button_width, next_button_height))
+                # Affichage de la boîte colorée contenant l'explication
+                explanation_box_rect = pygame.Rect(box_x, box_y, box_width, box_height)
+                pygame.draw.rect(screen, (199, 255, 250), explanation_box_rect, border_radius=15)
 
-                next_text = dynamic_font.render("Next", True, WHITE)
-                screen.blit(next_text, (next_button_x + (next_button_width - next_text.get_width()) // 2,
-                                        next_button_y + (next_button_height - next_text.get_height()) // 2))
-            else:
-                next_button = None
+                # Affichage du texte d'explication
+                wrapped_text = wrap_text(dynamic_font, explanation_text, explanation_box_rect.width - 20)
+
+                for i, line in enumerate(wrapped_text):
+                    line_surface = dynamic_font.render(line, True, (30, 34, 56))
+                    # Centrage horizontal
+                    line_x = explanation_box_rect.x + (explanation_box_rect.width - line_surface.get_width()) // 2
+                    line_y = explanation_box_rect.y + 10 + i * (dynamic_font.get_height() + 5)
+                    screen.blit(line_surface, (line_x, line_y))
+
+                # Taille et position du bouton "Next"
+                next_button_width = int(SCREEN_WIDTH * 0.2)
+                next_button_height = 40
+
+                # Utiliser les coordonnées de la boîte d'explication pour positionner le bouton
+                next_button_x = int(explanation_box_rect.x + (explanation_box_rect.width - next_button_width) // 2)
+                next_button_y = int(explanation_box_rect.y + explanation_box_rect.height - next_button_height - 10)
+
+                # Dessiner le bouton sur l'écran
+                next_button = pygame.draw.rect(
+                    screen,
+                    (7,12,34), 
+                    (next_button_x, next_button_y, next_button_width, next_button_height),
+                    border_radius=8
+                )
+
+                # Afficher le texte sur le bouton (facultatif)
+                font = pygame.font.SysFont(None, 24)
+                text_surface = font.render("Suivant", True, (255, 255, 255))
+                text_rect = text_surface.get_rect(center=(next_button_x + next_button_width // 2, next_button_y + next_button_height // 2))
+                screen.blit(text_surface, text_rect)
 
             # Gestion des événements
             for event in pygame.event.get():
@@ -396,22 +448,24 @@ def display_game():
                             if true_button.collidepoint(event.pos):
                                 if images[current_image_index]["real"]:
                                     score += 1
-                                    explanation_text = f"Bien joué ! {images[current_image_index]['explanation']}"
+                                    explanation_text = f"Bien joué ! \n {images[current_image_index]['explanation']}"
                                 else:
-                                    explanation_text = f"Dommage ! {images[current_image_index]['explanation']}"
+                                    explanation_text = f"Dommage ! \n {images[current_image_index]['explanation']}"
                                 show_explanation = True
+                                show_buttons = False
                             elif false_button.collidepoint(event.pos):
                                 if not images[current_image_index]["real"]:
                                     score += 1
-                                    explanation_text = f"Bien joué ! {images[current_image_index]['explanation']}"
+                                    explanation_text = f"Bien joué ! \n {images[current_image_index]['explanation']}"
                                 else:
-                                    explanation_text = f"Dommage ! {images[current_image_index]['explanation']}"
+                                    explanation_text = f"Dommage ! \n {images[current_image_index]['explanation']}"
                                 show_explanation = True
+                                show_buttons = False
                         elif next_button and next_button.collidepoint(event.pos):
                             current_image_index += 1
                             max_possible_score += 1
                             show_explanation = False
-                            print("Next image...", current_image_index, len(images))
+                            show_buttons = True
                             if current_image_index >= len(images):
                                 print("Fin du jeu !")
 
@@ -518,7 +572,7 @@ if __name__ == "__main__":
     roop_execution = False
     explanation_text = ""
     face_detected = True
-    game_state = "take_picture"
+    game_state = "game"
 
     while running:
         if game_state == "take_picture":
