@@ -280,29 +280,37 @@ def tutorial():
 def display_game():
     start_time = pygame.time.get_ticks()
     real_images = [
-        {"url": "Real/anne_hathaway.jpg", "real": True, "explanation": "Le visage de Anne Hathaway est très détaillé, la peau n'est pas 'lisse' comme les images créées par IA."},
+        {"url": "Real/anne_hathaway.jpg", "real": True, "explanation": "Le visage d'Anne Hathaway est très détaillé, la peau n'est pas lisse comme sur les images générées par IA."},
         {"url": "Real/Bryan_Cranston.jpg", "real": True, "explanation": "C'est une vraie photo prise pour la série 'Breaking Bad'."},
-        {"url": "Real/Henry_Cavill_Jason_Momoa.jpg", "real": True, "explanation": "Sur cette image de Henry Cavill et Jason Momoa, les éléments et gens en fond ne sont pas illogiques ou déformés."},
-        {"url": "Real/Robin Williams.jpg", "real": True, "explanation": "Sur cette photo, l'acteur Robin Williams a une peau détaillée, rien n'est hors de l'ordinaire sur l'image."},
-        {"url": "Real/Willem_Dafoe.jpg", "real": True, "explanation": "Sur cette photo de Willem Dafoe, il y a beaucoup d'éléments d'arrière plan très détaillés."}
+        {"url": "Real/Forest_Image.jpg", "real": True, "explanation": "Cette image d'une forêt est très détaillée, les couleurs sont cohérentes et il n'y a pas d'éléments flous ou déformés."},
+        {"url": "Real/Girl_Portrait_Lake.png", "real": True, "explanation": "Rien d'incohérent à signaler sur cette photo."},
+        {"url": "Real/Girl_Portrait_Smile.png", "real": True, "explanation": "Bien que certaines zones soient floues et adoucies, c'est une vraie photographie."},
+        {"url": "Real/Guy_Portrait.jpg", "real": True, "explanation": "Le regard est naturel, la barbe est bien dessinée et il n'y a pas d'éléments flous."},
+        {"url": "Real/Henry_Cavill_Jason_Momoa.jpg", "real": True, "explanation": "Sur cette image de Henry Cavill et Jason Momoa, les éléments et les personnes en arrière-plan ne sont pas illogiques ou déformés."},
+        {"url": "Real/Modern_House.png", "real": True, "explanation": "C'est une vraie photographie d'une maison moderne."},
+        {"url": "Real/Robin Williams.jpg", "real": True, "explanation": "Sur cette photo, l'acteur Robin Williams a une peau détaillée ; rien n'est hors de l'ordinaire."},
+        {"url": "Real/Willem_Dafoe.jpg", "real": True, "explanation": "Sur cette photo de Willem Dafoe, il y a de nombreux éléments d'arrière-plan très détaillés. Il est possible de retrouver cette image sur internet avec une recherche inversé ssur Google."},
     ]
+
     ai_images = [
-        {"url": "AI/Beach_Selfie_AI.jpeg", "real": False, "explanation": "On peut voir le téléphone qui est censé prendre la photo SUR la photo."},
+        {"url": "AI/Beach_Selfie_AI.jpeg", "real": False, "explanation": "On peut voir le téléphone censé prendre la photo... sur la photo !"},
         {"url": "AI/Cola_Bottle_AI.jpg", "real": False, "explanation": "Le texte ici ne veut rien dire."},
-        {"url": "AI/Guy_Portrait_Sunny_AI.jpg", "real": False, "explanation": "Le fond est très flou et ne semble pas 'naturel'."},
-        {"url": "AI/Img_AI_Superman.jpeg", "real": False, "explanation": "Le fond est très flou, la peau trop 'lisse' et on peut voir des imperfections au niveau de la cape."},
-        {"url": "AI/Modern_House_AI.jpg", "real": False, "explanation": "Bien que l'image soit très bien faite, elle est presque 'trop parfaite'."},
-        {"url": "AI/Pope_Drip_1_AI.jpg", "real": False, "explanation": "Le pape ne s'habillerait jamais comme ça."},
-        {"url": "AI/Pope_Drip_2_AI.jpg", "real": False, "explanation": "Le pape ne porterait jamais ce manteau."},
-        {"url": "AI/Rainy_Fence_Plants_AI.jpeg", "real": False, "explanation": "Il y a beaucoup trop de pots de fleurs."},
-        {"url": "AI/Squirrel_Picture_AI.jpg", "real": False, "explanation": "Le fond est flou et l'image a l'air trop 'parfaite'."},
-        {"url": "AI/Trump_Arrest_AI.jpg", "real": False, "explanation": "Les visages des policiers sont flous, il y a des problèmes au niveau des jambes."},
-        {"url": "AI/Will_Smith_Slap_AI.jpg", "real": False, "explanation": "Ils n'auraient pas pu prendre la photo en se faisant frapper, et l'IA a raté les doigts."},
-        {"url": "AI/Woman_Fence_AI.jpg", "real": False, "explanation": "..."},
+        {"url": "AI/Deepfake1_AI.jpeg", "real": False, "explanation": "Ce deepfake de Tom Cruise est très bien réalisé et trompe de nombreux internautes sur TikTok."},
+        {"url": "AI/Deepfake2_AI.png", "real": False, "explanation": "M. Macron ne se laisserait probablement pas pousser la barbe de cette façon et la liaison entre le visage et la barbe est ratée, c'est un deepfake."},
+        {"url": "AI/Guy_Portrait_Sunny_AI.jpg", "real": False, "explanation": "Impressionnant, mais le regard et les yeux sont étranges."},
+        {"url": "AI/Img_AI_Superman.jpeg", "real": False, "explanation": "Le fond est flou, la peau est trop lisse et on voit des imperfections de couleur sur l'avant du bras droit."},
+        {"url": "AI/Modern_House_AI.jpg", "real": False, "explanation": "Bien que l'image soit très bien faite, il faut zoomer pour voir des incohérences (l'ombre de la chaise gauche et les plantes)."},
+        {"url": "AI/Pope_Drip_2_AI.jpg", "real": False, "explanation": "Le pape François ne s'habillerait jamais de cette manière."},
+        {"url": "AI/Rainy_Fence_Plants_AI.jpeg", "real": False, "explanation": "Il y a beaucoup trop de pots de fleurs et la facade est trop parfaite."},
+        {"url": "AI/Squirrel_Picture_AI.jpg", "real": False, "explanation": "C'est un très beau fond d'écran inspiré de photographies mais généré par IA."},
+        {"url": "AI/Trump_Arrest_AI.jpg", "real": False, "explanation": "Les visages des policiers sont flous et il y a de sérieux problèmes au niveau des jambes."},
+        {"url": "AI/Will_Smith_Slap_AI.jpg", "real": False, "explanation": "L'IA a mal généré les doigts de Will Smith."},
+        {"url": "AI/Woman_Fence_AI.jpg", "real": False, "explanation": "Très belle image, mais généré par IA. Cette image représente bien le niveau de l'IA générative aujourd'hui."},
         {"url": "AI/Woman_nature_AI.png", "real": False, "explanation": "Les yeux ne sont pas alignés avec le regard."},
-        {"url": "AI/Woman_neon_AI.jpg", "real": False, "explanation": "..."},
-        {"url": "AI/Woman_Portrait_Plants_AI.jpg", "real": False, "explanation": "La plante en bas à droite n'est pas naturel et semble être un amas de branche vert."}
+        {"url": "AI/Woman_neon_AI.jpg", "real": False, "explanation": "Très belle image, mais généré par IA. Cette image représente bien le niveau de l'IA générative aujourd'hui."},
+        {"url": "AI/Woman_Portrait_Plants_AI.jpg", "real": False, "explanation": "La plante en bas à droite n'est pas naturelle et ressemble à un amas de branches vertes sans réelle lien."},
     ]
+
 
     # Combine and shuffle images
     images = real_images + ai_images
@@ -334,7 +342,7 @@ def display_game():
             new_image.append( {
                 "url": "output_photo.png",
                 "real": False,
-                "explanation": "Cette image est une Deepfake de vous ! Réalisée en 13sec, imaginée alors ce qu'il est possible de faire avec plus de temps..."
+                "explanation": "Cette image est une Deepfake de vous ! Réalisée en 10sec, imaginée ce qu'il est possible de faire avec plus de temps et d'image de vous..."
             } )
             images = new_image
             roop_execution = None
@@ -393,8 +401,8 @@ def display_game():
                 if explanation_alpha < 180:
                     explanation_alpha += 10
 
-                box_width = SCREEN_WIDTH * 0.6  # Largeur de la boîte
-                box_height = SCREEN_HEIGHT // 8  # Hauteur de la boîte
+                box_width = SCREEN_WIDTH * 0.4  # Largeur de la boîte
+                box_height = SCREEN_HEIGHT // 5.5  # Hauteur de la boîte
                 box_x = (SCREEN_WIDTH - box_width) // 2
                 box_y = button_y  # Garde la position Y d'origine ou modifie-la si nécessaire
 
@@ -517,17 +525,12 @@ def game_over():
             video_y = (SCREEN_HEIGHT - video_display_height) // 2 - 50 
             screen.blit(frame, (video_x, video_y))
 
-            # Ajuster la vitesse de la vidéo pour qu'elle soit normale
-            fps = cap.get(cv2.CAP_PROP_FPS)
-            if fps > 0:
-                clock = pygame.time.Clock()
-                clock.tick(fps)
         else:
             cap.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Redémarrer la vidéo si elle est terminée
 
 
         # Ajouter un message sous la vidéo avec gestion des sauts de ligne
-        message_text = "Merci d'avoir participé à notre expérience immersive !\nSi vous avez des questions, n'hésitez pas à nous en faire part.\n\n /!\ \n\nTous les outils utilisés ici sont libres et accessibles gratuitement.\nCela montre à quel point il est facile et rapide aujourd’hui de manipuler des images.\nRestez vigilants face aux contenus que vous voyez en ligne."
+        message_text = "Merci d'avoir participé à notre expérience immersive !\nSi vous avez des questions, n'hésitez pas à nous en faire part.\n\n /!\ \n\nTous les outils utilisés ici sont libres et accessibles gratuitement.\nCela montre à quel point il est facile et rapide aujourd’hui de manipuler des images.\nRestez vigilants face aux contenus que vous voyez en ligne.\nVérifiez toujours la source et faite une recherche inversée sur l'image pour comparer !\n"
         lines = message_text.split("\n")
         line_height = font.get_height() 
 
@@ -572,7 +575,7 @@ if __name__ == "__main__":
     roop_execution = False
     explanation_text = ""
     face_detected = True
-    game_state = "game_over"
+    game_state = "game"
 
     while running:
         if game_state == "take_picture":
