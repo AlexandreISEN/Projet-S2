@@ -527,7 +527,7 @@ def game_over():
 
 
         # Ajouter un message sous la vidéo avec gestion des sauts de ligne
-        message_text = "Merci d'avoir participé à notre expérience immersive !\nSi vous avez des questions, n'hésitez pas à nous en faire part."
+        message_text = "Merci d'avoir participé à notre expérience immersive !\nSi vous avez des questions, n'hésitez pas à nous en faire part.\n\n /!\ \n\nTous les outils utilisés ici sont libres et accessibles gratuitement.\nCela montre à quel point il est facile et rapide aujourd’hui de manipuler des images.\nRestez vigilants face aux contenus que vous voyez en ligne."
         lines = message_text.split("\n")
         line_height = font.get_height() 
 
@@ -572,7 +572,7 @@ if __name__ == "__main__":
     roop_execution = False
     explanation_text = ""
     face_detected = True
-    game_state = "game"
+    game_state = "game_over"
 
     while running:
         if game_state == "take_picture":

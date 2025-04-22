@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 from deepface import DeepFace
-import matplotlib.pyplot as plt
 
 
 def detect_faces(image_path):
