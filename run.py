@@ -8,6 +8,8 @@ import threading
 import cv2
 import numpy as np
 import time
+import os
+import sys
 
 
 # Initialize pygame
@@ -45,13 +47,30 @@ def wrap_text(font, text, max_width):
             lines.append(current_line.strip())
     return lines
 
+def resource_path(relative_path):
+    """Donne le chemin absolu vers un fichier ressource, même après PyInstaller"""
+    try:
+        base_path = sys._MEIPASS  # quand c'est packagé avec PyInstaller
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+
+def get_exe_dir():
+    if getattr(sys, 'frozen', False):
+        # Exécutable PyInstaller
+        return os.path.dirname(sys.executable)
+    else:
+        # Exécution normale
+        return os.path.dirname(os.path.abspath(__file__))
+
 
 # 1.1 Start screen
 def start_screen(face_detected):
     start_running = True
 
     while start_running:
-        background_image = pygame.image.load("background.jpg")  # Charger l'image de fond
+        background_image = pygame.image.load(resource_path("background.jpg"))  # Charger l'image de fond
         background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))  # Redimensionner l'image
         screen.blit(background_image, (0, 0))  # Afficher l'image de fond
 
@@ -113,7 +132,7 @@ def take_picture(face_detected):
 
     while running:
         pygame.display.flip()
-        background_image = pygame.image.load("background.jpg")  # Charger l'image de fond
+        background_image = pygame.image.load(resource_path("background.jpg"))  # Charger l'image de fond
         background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))  # Redimensionner l'image
         screen.blit(background_image, (0, 0))  # Afficher l'image de fond
 
@@ -165,7 +184,8 @@ def take_picture(face_detected):
                     # Capture et enregistrement de la photo
                     ret, photo = cap.read()
                     if ret:
-                        cv2.imwrite("capture.png", photo)
+                        save_path = os.path.join(get_exe_dir(), "_internal/capture.png")
+                        cv2.imwrite(save_path, photo)
                         print("Photo prise et enregistrée sous 'capture.png'.")
 
                     # Déclenchement du flash
@@ -222,8 +242,8 @@ def roop(source_image: str, target_video: str, output_video: str,
 def background(select_photo, select_video):
     global roop_execution
     roop_execution = True
-    roop("capture.png", select_photo, "output_photo.png")
-    roop("capture.png", select_video, "output_video.mp4")
+    roop(resource_path("capture.png"), select_photo, resource_path("output_photo.png"))
+    roop(resource_path("capture.png"), select_video, resource_path("output_video.mp4"))
     print("Roop a été exécuté en arrière-plan.")
     roop_execution = False
 
@@ -245,7 +265,7 @@ def load_image(image_path):
 # 4.2 Display the tutorial screen
 def tutorial():
     # Load and display the background image
-    background_image = pygame.image.load("explanation.jpg")
+    background_image = pygame.image.load(resource_path("explanation.jpg"))
     background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
     screen.blit(background_image, (0, 0))
 
@@ -290,6 +310,7 @@ def display_game():
         {"url": "Real/Modern_House.png", "real": True, "explanation": "C'est une vraie photographie d'une maison moderne."},
         {"url": "Real/Robin Williams.jpg", "real": True, "explanation": "Sur cette photo, l'acteur Robin Williams a une peau détaillée ; rien n'est hors de l'ordinaire."},
         {"url": "Real/Willem_Dafoe.jpg", "real": True, "explanation": "Sur cette photo de Willem Dafoe, il y a de nombreux éléments d'arrière-plan très détaillés. Il est possible de retrouver cette image sur internet avec une recherche inversé ssur Google."},
+        {"url": "Real/Person_exist.jpg", "real": True, "explanation": "C'est une vraie photographie d'une personne."},
     ]
 
     ai_images = [
@@ -309,6 +330,7 @@ def display_game():
         {"url": "AI/Woman_nature_AI.png", "real": False, "explanation": "Les yeux ne sont pas alignés avec le regard."},
         {"url": "AI/Woman_neon_AI.jpg", "real": False, "explanation": "Très belle image, mais généré par IA. Cette image représente bien le niveau de l'IA générative aujourd'hui."},
         {"url": "AI/Woman_Portrait_Plants_AI.jpg", "real": False, "explanation": "La plante en bas à droite n'est pas naturelle et ressemble à un amas de branches vertes sans réelle lien."},
+        {"url": "AI/Person_dont_exist.jpg", "real": False, "explanation": "Cette image a été générée par une IA. Trouvez-en d'autres sur le site https://thispersondoesnotexist.com ."},
     ]
 
 
@@ -331,13 +353,13 @@ def display_game():
 
     while running:
         explanation_alpha = 0
-        background_image = pygame.image.load("background2.jpg") 
+        background_image = pygame.image.load(resource_path("background2.jpg")) 
         background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT)) 
         screen.blit(background_image, (0, 0))
         elapsed_time = pygame.time.get_ticks() - start_time
 
-        if roop_execution == False and elapsed_time > 60000:  # 60 000 ms = 1 minute
-            new_image = [images[current_image_index],images[current_image_index+1]]
+        if roop_execution == False and elapsed_time > 60000 and current_image_index >= 5 :  # 60 000 ms = 1 minute
+            new_image = [images[current_image_index]]
             current_image_index = 0
             new_image.append( {
                 "url": "output_photo.png",
@@ -352,7 +374,7 @@ def display_game():
 
         if current_image_index < len(images):
             image_data = images[current_image_index]
-            image_path = image_data["url"]
+            image_path = resource_path(image_data["url"])
 
             # Définir le rectangle pour l'image
             image_rect_width = SCREEN_WIDTH * 0.8  # 80% de la largeur de l'écran
@@ -456,17 +478,17 @@ def display_game():
                             if true_button.collidepoint(event.pos):
                                 if images[current_image_index]["real"]:
                                     score += 1
-                                    explanation_text = f"Bien joué ! \n {images[current_image_index]['explanation']}"
+                                    explanation_text = f"Bien joué, c'est une vraie image ! \n {images[current_image_index]['explanation']}"
                                 else:
-                                    explanation_text = f"Dommage ! \n {images[current_image_index]['explanation']}"
+                                    explanation_text = f"Dommage, c'est fake ! \n {images[current_image_index]['explanation']}"
                                 show_explanation = True
                                 show_buttons = False
                             elif false_button.collidepoint(event.pos):
                                 if not images[current_image_index]["real"]:
                                     score += 1
-                                    explanation_text = f"Bien joué ! \n {images[current_image_index]['explanation']}"
+                                    explanation_text = f"Bien joué, l'image est fake ! \n {images[current_image_index]['explanation']}"
                                 else:
-                                    explanation_text = f"Dommage ! \n {images[current_image_index]['explanation']}"
+                                    explanation_text = f"Dommage, c'est une vraie image ! \n {images[current_image_index]['explanation']}"
                                 show_explanation = True
                                 show_buttons = False
                         elif next_button and next_button.collidepoint(event.pos):
@@ -477,7 +499,7 @@ def display_game():
                             if current_image_index >= len(images):
                                 print("Fin du jeu !")
 
-                                background_image = pygame.image.load("background2.jpg")
+                                background_image = pygame.image.load(resource_path("background2.jpg"))
                                 background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
                                 screen.blit(background_image, (0, 0))
 
@@ -498,16 +520,22 @@ def display_game():
 def game_over():
     global game_state
     running = True
-    video_path = "output_video.mp4"
+    video_path = resource_path("output_video.mp4")
     cap = cv2.VideoCapture(video_path)
 
     # Dimensions fixes pour la vidéo
     video_display_width = 800
     video_display_height = 450
 
+    clock = pygame.time.Clock()
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    if fps == 0 or np.isnan(fps):
+        fps = 30  # fallback de secours
+
+
     while running:
         # Charger et afficher l'image de fond
-        background_image = pygame.image.load("background2.jpg")
+        background_image = pygame.image.load(resource_path("background2.jpg"))
         background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
         screen.blit(background_image, (0, 0))
 
@@ -517,7 +545,8 @@ def game_over():
             # Convertir la frame pour Pygame
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frame = cv2.resize(frame, (video_display_width, video_display_height))
-            frame = np.rot90(frame)
+            frame = cv2.flip(frame, 1)
+            frame = np.rot90(frame, k=1) 
             frame = pygame.surfarray.make_surface(frame)
 
             # Calculer les coordonnées pour centrer la vidéo
@@ -530,7 +559,7 @@ def game_over():
 
 
         # Ajouter un message sous la vidéo avec gestion des sauts de ligne
-        message_text = "Merci d'avoir participé à notre expérience immersive !\nSi vous avez des questions, n'hésitez pas à nous en faire part.\n\n /!\ \n\nTous les outils utilisés ici sont libres et accessibles gratuitement.\nCela montre à quel point il est facile et rapide aujourd’hui de manipuler des images.\nRestez vigilants face aux contenus que vous voyez en ligne.\nVérifiez toujours la source et faite une recherche inversée sur l'image pour comparer !\n"
+        message_text = "Merci d'avoir participé à notre expérience immersive !\nSi vous avez des questions, n'hésitez pas à nous en faire part.\n \n /!\ \nTous les outils utilisés ici sont libres et accessibles gratuitement.\nCela montre à quel point il est facile et rapide aujourd’hui de manipuler des images.\nRestez vigilants face aux contenus que vous voyez en ligne.\nVérifiez toujours la source et faite une recherche inversée sur l'image pour comparer !\n"
         lines = message_text.split("\n")
         line_height = font.get_height() 
 
@@ -544,14 +573,17 @@ def game_over():
 
         # Dessiner le bouton "Finir"
         button_width, button_height = 200, 60
-        button_x = (SCREEN_WIDTH - button_width) // 2
-        button_y = SCREEN_HEIGHT - 100
+        margin = 30  # marge du bord de l'écran
+        button_x = SCREEN_WIDTH - button_width - margin
+        button_y = SCREEN_HEIGHT - button_height - margin
+
         finish_button = pygame.draw.rect(screen, RED, (button_x, button_y, button_width, button_height), border_radius=10)
 
         finish_text = font.render("Fin", True, WHITE)
         screen.blit(finish_text, (button_x + (button_width - finish_text.get_width()) // 2,
                                   button_y + (button_height - finish_text.get_height()) // 2))
 
+        clock.tick(fps)
         pygame.display.flip()
 
         # Gestion des événements
@@ -575,12 +607,12 @@ if __name__ == "__main__":
     roop_execution = False
     explanation_text = ""
     face_detected = True
-    game_state = "game"
+    game_state = "take_picture"
 
     while running:
         if game_state == "take_picture":
             take_picture(face_detected)
-            select_photo, select_video = preprocess_image("capture.png")
+            select_photo, select_video = preprocess_image(resource_path("capture.png"))
             
             if select_photo is None:
                 face_detected = False
